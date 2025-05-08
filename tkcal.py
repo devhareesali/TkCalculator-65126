@@ -1,11 +1,11 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
+import math
 
 # Evaluate expression safely
 def evaluate_expression():
     try:
         expression = entry.get()
-        # Only allow digits and math operators
         if not all(char in '0123456789+-*/(). ' for char in expression):
             raise ValueError("Invalid characters used.")
         result = eval(expression)
@@ -14,7 +14,7 @@ def evaluate_expression():
     except ZeroDivisionError:
         messagebox.showerror("Error", "Cannot divide by zero.")
         entry.delete(0, tk.END)
-    except Exception as e:
+    except Exception:
         messagebox.showerror("Error", "Invalid Expression")
         entry.delete(0, tk.END)
 
@@ -24,10 +24,34 @@ def button_click(char):
 def clear():
     entry.delete(0, tk.END)
 
+def square():
+    try:
+        expression = entry.get()
+        value = float(eval(expression))
+        result = value ** 2
+        entry.delete(0, tk.END)
+        entry.insert(tk.END, str(result))
+    except Exception:
+        messagebox.showerror("Error", "Invalid input for square.")
+        entry.delete(0, tk.END)
+
+def square_root():
+    try:
+        expression = entry.get()
+        value = float(eval(expression))
+        if value < 0:
+            raise ValueError("Cannot take square root of negative number.")
+        result = math.sqrt(value)
+        entry.delete(0, tk.END)
+        entry.insert(tk.END, str(result))
+    except Exception:
+        messagebox.showerror("Error", "Invalid input for square root.")
+        entry.delete(0, tk.END)
+
 # Create main window
 root = tk.Tk()
 root.title("Professional Calculator")
-root.geometry("400x500")
+root.geometry("400x600")
 root.configure(bg="#1e1e1e")
 root.resizable(False, False)
 
@@ -44,18 +68,20 @@ style.map("TButton",
 entry = ttk.Entry(root, font=("Consolas", 22), justify="right")
 entry.pack(fill="both", ipady=15, padx=10, pady=10)
 
-# Buttons
+# Buttons layout (balanced rows)
 buttons = [
-    ['7', '8', '9', '/'],
-    ['4', '5', '6', '*'],
-    ['1', '2', '3', '-'],
-    ['0', '.', 'C', '+'],
-    ['(', ')', '=', '']
+    ['C', '(', ')', '/'],
+    ['7', '8', '9', '*'],
+    ['4', '5', '6', '-'],
+    ['1', '2', '3', '+'],
+    ['0', '.', '=', '√'],
+    ['x²', '', '', '']
 ]
 
 frame = tk.Frame(root, bg="#1e1e1e")
 frame.pack()
 
+# Add buttons to the UI
 for r, row in enumerate(buttons):
     for c, char in enumerate(row):
         if char:
@@ -63,6 +89,10 @@ for r, row in enumerate(buttons):
                 btn = ttk.Button(frame, text=char, command=evaluate_expression)
             elif char == 'C':
                 btn = ttk.Button(frame, text=char, command=clear)
+            elif char == 'x²':
+                btn = ttk.Button(frame, text=char, command=square)
+            elif char == '√':
+                btn = ttk.Button(frame, text=char, command=square_root)
             else:
                 btn = ttk.Button(frame, text=char, command=lambda ch=char: button_click(ch))
             btn.grid(row=r, column=c, padx=5, pady=5, ipadx=5, ipady=10)
